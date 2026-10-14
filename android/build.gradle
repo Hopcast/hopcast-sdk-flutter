@@ -1,0 +1,63 @@
+group = "fr.hopcast.flutter"
+version = "0.4.0"
+
+buildscript {
+    ext.kotlin_version = "2.1.0"
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath "com.android.tools.build:gradle:8.11.1"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+// The Hopcast SDK is bundled with this plugin as a self-contained Maven
+// repository (AAR + POM + Gradle module metadata) — binary only, no source.
+// It must be visible not only to THIS plugin project but also to the consuming
+// app project, because `fr.hopcast:sdk-hopcast-android` becomes a transitive
+// dependency on the app's runtime classpath (resolved with the app's repos).
+// `${projectDir}` here is this plugin's android/ directory, so the path stays
+// correct regardless of where the host app lives. The consumer needs no setup.
+def hopcastLocalRepo = "${projectDir}/repo"
+
+rootProject.allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        maven { url = uri(hopcastLocalRepo) }
+    }
+}
+
+apply plugin: "com.android.library"
+apply plugin: "kotlin-android"
+
+android {
+    namespace = "fr.hopcast.flutter"
+    compileSdk = 36
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+    defaultConfig {
+        minSdk = 21
+    }
+}
+
+repositories {
+    // Also declared here for this plugin project's own resolution. The POM/module
+    // brings the SDK's transitive dependencies, which resolve from
+    // google()/mavenCentral().
+    maven { url = uri(hopcastLocalRepo) }
+}
+
+dependencies {
+    implementation "fr.hopcast:sdk-hopcast-android:0.5.1"
+    // ProcessLifecycleOwner — drives continuous foreground advertising/discovery.
+    implementation "androidx.lifecycle:lifecycle-process:2.6.1"
+}

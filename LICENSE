@@ -1,0 +1,27 @@
+Hopcast Flutter SDK — Proprietary License
+Copyright © Hopcast. All rights reserved.
+
+This software package ("hopcast_flutter"), including the Dart, Kotlin and Swift
+glue code, the bundled Android AAR (fr.hopcast:sdk-hopcast-android) and the
+bundled iOS XCFramework (HopcastSDKKit), is the confidential and proprietary
+property of Hopcast.
+
+1. Grant. Subject to a separate written agreement with Hopcast, the licensee is
+   granted a non-exclusive, non-transferable right to integrate and distribute
+   this package as part of the licensee's own applications, in binary form.
+
+2. Restrictions. The licensee shall not, and shall not permit any third party to:
+   (a) reverse engineer, decompile, disassemble or otherwise attempt to derive
+       the source code of the bundled binary cores (AAR / XCFramework);
+   (b) redistribute the package, in whole or in part, as a standalone product or
+       SDK;
+   (c) remove or alter any proprietary notices.
+
+3. No Warranty. The software is provided "AS IS", without warranty of any kind,
+   express or implied. To the maximum extent permitted by law, Hopcast disclaims
+   all warranties and shall not be liable for any damages arising from its use.
+
+4. Termination. This license terminates automatically upon any breach. Upon
+   termination the licensee must cease all use and destroy all copies.
+
+For licensing inquiries: contact@hopcast.io

@@ -1,0 +1,31 @@
+name: hopcast_flutter_example
+description: "Runnable demo of the hopcast_flutter D2D file-sharing package."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.10.9
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+
+  # The package under demonstration, referenced by relative path.
+  hopcast_flutter:
+    path: ../
+
+  # Used by the demo to persist the trust policy and generate demo files.
+  shared_preferences: ^2.2.0
+  path_provider: ^2.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true

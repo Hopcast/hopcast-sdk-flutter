@@ -1,0 +1,4 @@
+framework module HopcastSDKKit {
+  header "HopcastSDKKit-Swift.h"
+  requires objc
+}
