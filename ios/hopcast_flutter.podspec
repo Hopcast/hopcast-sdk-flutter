@@ -6,7 +6,7 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'hopcast_flutter'
-  s.version          = '0.4.0'
+  s.version          = '0.4.1'
   s.summary          = 'Hopcast device-to-device (D2D) file sharing for Flutter (iOS).'
   s.description      = <<-DESC
 Flutter/iOS bridge to the Hopcast SDK (device-to-device file sharing: offline, online and hybrid modes).
@@ -25,7 +25,7 @@ The SDK is vendored as a hardened binary XCFramework; only the Swift glue (chann
   s.vendored_frameworks = 'Frameworks/HopcastSDKKit.xcframework'
 
   s.dependency 'Flutter'
-  s.platform = :ios, '14.0'
+  s.platform = :ios, '15.0'
   s.swift_version = '5.0'
 
   # Required for a Swift module + embedded dynamic framework.

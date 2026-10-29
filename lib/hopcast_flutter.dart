@@ -152,16 +152,27 @@ class HopcastFlutter {
   /// * [mode] — operating mode, [HopcastMode.offlineOnly] by default.
   /// * [onlineConfig] — required for [HopcastMode.onlineOnly] /
   ///   [HopcastMode.hybrid] (a default [HopcastOnlineConfig] is used if omitted).
+  /// * [autoDisconnectAfterTransfer] — **Android only.** `true` (default,
+  ///   unchanged behaviour) drops the device-to-device link after every
+  ///   [sendFiles], so the next transfer — possibly to another device — starts
+  ///   from a fresh link. `false` keeps the link open across sends: consecutive
+  ///   [sendFiles] to the same peer skip the connection + Wi-Fi upgrade (up to
+  ///   ~15 s between devices on different Wi-Fi networks). The link is then
+  ///   freed when you send to another peer or call [stopSharing]. Ignored on
+  ///   iOS, where the MultipeerConnectivity session already stays open until
+  ///   [stopSharing] / [release].
   Future<void> build({
     required String deviceId,
     String serviceId = kHopcastDefaultServiceId,
     HopcastMode mode = HopcastMode.offlineOnly,
     HopcastOnlineConfig? onlineConfig,
+    bool autoDisconnectAfterTransfer = true,
   }) =>
       _methods.invokeMethod('build', {
         'deviceId': deviceId,
         'serviceId': serviceId,
         'mode': mode.wire,
+        'autoDisconnectAfterTransfer': autoDisconnectAfterTransfer,
         if (mode != HopcastMode.offlineOnly)
           'onlineConfig': (onlineConfig ?? const HopcastOnlineConfig()).toMap(),
       });
@@ -270,6 +281,10 @@ class HopcastFlutter {
   /// delivery toward this device from a neighbour that has it. Returns the
   /// `needId` (for [cancelNeed]), or `null` when unprovisioned / no online
   /// subsystem.
+  ///
+  /// Avoid filing a need while one of your own [sendFiles] is still running
+  /// (wait for its `bulkFinished` on [transferEvents]): the orchestrated
+  /// delivery would compete with it for the single device-to-device link.
   Future<String?> declareNeed({
     required String contentId,
     required int ttlSeconds,

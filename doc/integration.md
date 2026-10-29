@@ -14,7 +14,7 @@ dependencies:
   hopcast_flutter:
     git:
       url: https://github.com/Hopcast/hopcast-sdk-flutter
-      ref: 0.4.0   # release tag
+      ref: 0.4.1   # release tag
 ```
 
 ```bash
@@ -168,9 +168,22 @@ you want to drive your own consent UX. The set spans, by API level:
 ### 2.5 The bundled AAR
 
 The SDK is shipped as a self-contained local Maven repo inside the plugin
-(`android/repo/`, binary only). Its POM/module pulls the SDK's transitive
-dependencies, which resolve from the consumer's `google()` / `mavenCentral()`.
-Nothing extra to declare.
+(`android/repo/`, binary only — `sdk-hopcast-android:0.5.2`). Its POM/module
+pulls the SDK's transitive dependencies, which resolve from the consumer's
+`google()` / `mavenCentral()` — including `io.netty:netty-codec-http`, the
+WebSocket transport of the online mode. Nothing extra to declare (with plugin
+0.4.0 / SDK 0.5.1 online mode never reached `cloudReady` without it).
+
+### 2.6 R8 / minified release builds
+
+No rule to write. The AAR ships consumer rules that R8 applies to your app
+automatically (full mode, AGP 8+ default): the SDK's public API and services,
+the MQTT stack (HiveMQ / Netty / JCTools) and the `-dontwarn` entries for the
+optional classes those libraries reference. Since SDK 0.5.2 the
+device-to-device protocol uses no reflection, so a debug build and a release
+build of your app exchange files normally (0.4.0 release builds could crash
+with `ClassCastException … LinkedTreeMap` or `Can't find '[toLeakAwareBuffer]'`).
+Don't `-keep` / `-dontshrink` the whole SDK in your own rules — not needed.
 
 ---
 
@@ -178,11 +191,12 @@ Nothing extra to declare.
 
 ### 3.1 Deployment target
 
-The plugin requires **iOS 14.0**. Ensure your Runner's iOS Deployment Target is
-≥ 14.0 (Xcode → Runner target → General), and in `ios/Podfile`:
+The plugin requires **iOS 15.0** (Xcode 27 no longer builds for older
+targets). Ensure your Runner's iOS Deployment Target is ≥ 15.0 (Xcode → Runner
+target → General), and in `ios/Podfile`:
 
 ```ruby
-platform :ios, '14.0'
+platform :ios, '15.0'
 ```
 
 ### 3.2 Info.plist keys
@@ -316,6 +330,11 @@ final needId = await hopcast.declareNeed(contentId: 'content-43', ttlSeconds: 36
 - `hybrid`: `startSharing`/`stopSharing` drive the offline (user-initiated)
   subsystem, `enableOnlineMode`/`disableOnlineMode` the cloud one; both can be
   on at the same time. `onlineOnly`: only the cloud flow.
+- Don't call `declareNeed` while one of your own `sendFiles` is still running
+  (wait for its `bulkFinished`): the orchestrated delivery would compete with
+  it for the device's single D2D link. The Android SDK 0.5.2 serializes these
+  cases natively, but the plugin does not expose its transfer-state API (not
+  available on iOS), so track your sends through `transferEvents`.
 
 ### 6.1 Push (FCM)
 

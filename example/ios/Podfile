@@ -1,5 +1,5 @@
-# Hopcast requires iOS 14.0 (the plugin's XCFramework deployment target).
-platform :ios, '14.0'
+# Hopcast requires iOS 15.0 (plugin podspec; Xcode 27 no longer builds for < 15).
+platform :ios, '15.0'
 
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'

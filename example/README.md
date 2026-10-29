@@ -48,7 +48,7 @@ Give the devices a few seconds to find each other, select a peer, and tap
 | `lib/src/friendly_name.dart` | stable per-install device name |
 | `android/app/build.gradle.kts` | minSdk 21, core library desugaring, packaging excludes |
 | `ios/Runner/Info.plist` | `NSLocalNetworkUsageDescription`, `NSBonjourServices`, Bluetooth usage |
-| `ios/Podfile` | `platform :ios, '14.0'` |
+| `ios/Podfile` | `platform :ios, '15.0'` |
 
 The demo's `serviceId` is `hopcastdemo` (see `kDemoServiceId` in `main.dart`),
 which matches the `NSBonjourServices` entries in `ios/Runner/Info.plist`.

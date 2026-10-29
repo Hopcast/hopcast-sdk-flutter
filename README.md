@@ -35,8 +35,8 @@ facade and never see the SDK internals.
 
 | | Android | iOS |
 |---|---|---|
-| Min version | API 21 (Android 5.0) | iOS 14 |
-| Native core | AAR `sdk-hopcast-android:0.5.1` | XCFramework `HopcastSDKKit` (iOS SDK sources, aligned with Android 0.5.1) |
+| Min version | API 21 (Android 5.0) | iOS 15 |
+| Native core | AAR `sdk-hopcast-android:0.5.2` | XCFramework `HopcastSDKKit` (iOS SDK sources) |
 | Registration | Automatic (plugin loader) | Automatic (plugin loader) |
 
 > **No cross-platform interop.** The two platforms use different underlying
@@ -53,14 +53,15 @@ dependencies:
   hopcast_flutter:
     git:
       url: https://github.com/Hopcast/hopcast-sdk-flutter
-      ref: 0.4.0
+      ref: 0.4.1
 ```
 
 Then run `flutter pub get`. The plugin auto-registers on both platforms — no
 `MainActivity` / `AppDelegate` wiring needed.
 
 There is platform setup to do (permissions, `Info.plist`, Gradle) — see the
-**[Integration guide](doc/integration.md)**.
+**[Integration guide](doc/integration.md)**. Minified (R8) Android release builds
+need **no Hopcast-specific rule**: the bundled AAR ships its own consumer rules.
 
 ### Getting your SDK key
 
@@ -130,6 +131,18 @@ FirebaseMessaging.instance.onTokenRefresh.listen(hopcast.handleFcmToken);
 ```
 
 See [Integration guide §6](doc/integration.md#6-online-mode-optional).
+
+### Sending several times to the same peer (Android)
+
+Each new Android connection pays a Bluetooth → Wi-Fi upgrade (up to ~15 s across
+different Wi-Fi networks). To pay it once, keep the link open across sends:
+
+```dart
+await hopcast.build(deviceId: 'My-Phone', serviceId: 'myapp',
+    autoDisconnectAfterTransfer: false); // Android only; ignored on iOS
+```
+
+See [Platform notes](doc/platform_notes.md#connections-are-released-after-each-transfer-by-default).
 
 ## Documentation
 

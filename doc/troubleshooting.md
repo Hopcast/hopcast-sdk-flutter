@@ -46,8 +46,8 @@ ensure your app's `settings.gradle` does **not** force
 
 ## iOS: "requires a higher minimum iOS deployment version"
 
-Set `platform :ios, '14.0'` in `ios/Podfile` (and bump the Runner deployment
-target to ≥ 14.0), then `pod install` — see
+Set `platform :ios, '15.0'` in `ios/Podfile` (and bump the Runner deployment
+target to ≥ 15.0), then `pod install` — see
 [integration.md §3.1](integration.md#31-deployment-target).
 
 ## Transfers are extremely slow
@@ -58,6 +58,20 @@ target to ≥ 14.0), then `pod install` — see
   auto-disconnects after each transfer to avoid this; if you send in a tight loop,
   serialise sends.
 - **Android 13+ without `NEARBY_WIFI_DEVICES`.** The transfer can't rise to Wi-Fi.
+- **Android: mobile hotspot on.** With the Wi-Fi hotspot (tethering) enabled on
+  either device, Android does not let Nearby create the Wi-Fi Direct / Aware
+  link: transfers work but stay on Bluetooth. OS limitation — ask users to turn
+  the hotspot off for large transfers.
+- **Android: every send to the same peer is slow to start.** Each new connection
+  pays the Wi-Fi upgrade (up to ~15 s across different Wi-Fi networks). Build
+  with `autoDisconnectAfterTransfer: false` to keep the link between sends.
+
+## Android release build: transfers never complete / crash in R8 builds
+
+`ClassCastException … LinkedTreeMap`, `Can't find '[toLeakAwareBuffer]'`, or
+transfers that never finish in a minified build: plugin ≤ 0.4.0 (SDK 0.5.1)
+was not robust to the app's R8 pass. Upgrade to 0.4.1 (SDK 0.5.2) and remove
+any Hopcast-specific rule you added as a workaround — none is needed.
 
 ## Receiver never gets the file
 
@@ -76,6 +90,9 @@ resolved.
 
 ## Online mode: never `cloudReady`
 
+- Plugin 0.4.0 on Android: the bundled SDK 0.5.1 missed
+  `io.netty:netty-codec-http` (the WebSocket transport). Fixed in 0.4.1 — drop
+  any manual `netty-codec-http` dependency you added as a workaround.
 - Built with `HopcastMode.offlineOnly` (default)? Online calls are no-ops —
   pass `mode: HopcastMode.hybrid` / `onlineOnly` to `build()` (the first
   `build()` of the process wins; `release()` first to change it).

@@ -124,6 +124,7 @@ object HopcastBridge {
         serviceId: String?,
         mode: Mode,
         onlineConfig: OnlineConfig?,
+        autoDisconnectAfterTransfer: Boolean,
         context: Context,
         lifecycleOwner: LifecycleOwner?,
         cacheDir: File,
@@ -152,17 +153,19 @@ object HopcastBridge {
                 // decides acceptTransfer / rejectTransfer (allowed / blocked / prompt policy).
                 .setIncomingTransferPolicy(IncomingTransferPolicy.MANUAL)
                 .setTransferWatchdog(30_000L)
-                // Release the connection as soon as a transfer finishes so the next
-                // transfer (possibly to a different device) keeps full Wi-Fi speed. The
-                // peer stays discoverable and is transparently re-invited on the next send.
-                .setAutoDisconnectAfterTransfer(true)
+                // true (default): release the connection as soon as a transfer finishes so
+                // the next transfer (possibly to a different device) keeps full Wi-Fi speed;
+                // the peer stays discoverable and is re-invited on the next send.
+                // false: keep the link across sends (SDK 0.5.2+: bulk path included), so
+                // consecutive sends to the same peer skip the connection + Wi-Fi upgrade.
+                .setAutoDisconnectAfterTransfer(autoDisconnectAfterTransfer)
                 .setMode(mode)
                 .apply {
                     if (mode != Mode.OFFLINE_ONLY) setOnlineConfig(onlineConfig ?: OnlineConfig())
                 }
                 .build()
 
-            Log.i(TAG, "SDK built deviceId='$name' serviceId='${serviceId ?: "<default>"}' mode=$mode")
+            Log.i(TAG, "SDK built deviceId='$name' serviceId='${serviceId ?: "<default>"}' mode=$mode autoDisconnect=$autoDisconnectAfterTransfer")
             builtMode = mode
             HopcastSDK.setDeviceDiscoveryListener(discoveryListener)
             HopcastSDK.setTransferListener(transferListener, TRANSFER_TAG)

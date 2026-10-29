@@ -2,6 +2,48 @@
 
 All notable changes to `hopcast_flutter` are documented here.
 
+## 0.4.1
+
+Android native core `sdk-hopcast-android` **0.5.1 → 0.5.2** (published
+artifacts embedded as-is), plus iOS 15 and connection reuse.
+
+### Fixed (Android, via SDK 0.5.2)
+
+- **Online mode reaches `cloudReady`.** The SDK POM now declares
+  `io.netty:netty-codec-http` (MQTT over WebSocket); with 0.4.0 the `wss://`
+  connection failed. It resolves transitively — no app-side dependency. Remove
+  any manual `netty-codec-http` workaround.
+- **Minified (R8) release builds.** The D2D protocol no longer uses reflection
+  and the AAR's consumer rules now cover HiveMQ / Netty / JCTools and the
+  optional OkHttp / Netty classes: fixes `ClassCastException … LinkedTreeMap`,
+  `Can't find '[toLeakAwareBuffer]'` and transfers never completing. **No
+  Hopcast rule needed in the app.** Debug and release builds interoperate.
+- Concurrency between user sends and orchestrated deliveries: no duplicate
+  connections, orchestrated sends serialized per peer, a link still in use is
+  never torn down by the SDK.
+
+### Added
+
+- `build(autoDisconnectAfterTransfer:)` — **Android only** (ignored on iOS,
+  whose session already stays open). `true` (default) keeps the previous
+  behaviour; `false` keeps the D2D link open across sends, so consecutive sends
+  to the same peer skip the connection + Wi-Fi upgrade (up to ~15 s). Relies on
+  SDK 0.5.2, which also honours it on the bulk-send path.
+
+### Changed
+
+- iOS: minimum deployment target **15.0** (podspec + example; Xcode 27 rejects
+  < 15). Set `platform :ios, '15.0'` in your `Podfile`.
+- Docs: R8 (no rules), netty, keep-connection guidance, mobile-hotspot
+  limitation (hotspot on ⇒ no Wi-Fi Direct, transfers stay on Bluetooth),
+  don't `declareNeed` during one of your own sends.
+
+### Not exposed
+
+- Android SDK 0.5.2's read-only state (`connectedPeers`, `activeTransfers`,
+  `isTransferInProgress`) and `runProtocolSelfCheck()`: no iOS equivalent, so
+  they stay out of the cross-platform API (like other Android-only extras).
+
 ## 0.4.0
 
 Parity with the native SDKs, now aligned with each other (Android 0.5.1 /

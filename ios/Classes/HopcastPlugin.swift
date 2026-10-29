@@ -66,6 +66,8 @@ public class HopcastPlugin: NSObject, FlutterPlugin {
                     isSecondaryFcm: (m["isSecondaryFcm"] as? Bool) ?? true,
                     runAsService: (m["runAsService"] as? Bool) ?? false)
             }
+            // "autoDisconnectAfterTransfer" is Android-only and deliberately ignored: the
+            // MultipeerConnectivity session already stays open until stopSharing/release.
             bridge.build(deviceId: deviceId, serviceId: serviceId, mode: mode, onlineConfig: onlineConfig)
             result(true)
 

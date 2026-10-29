@@ -1,5 +1,5 @@
 group = "fr.hopcast.flutter"
-version = "0.4.0"
+version = "0.4.1"
 
 buildscript {
     ext.kotlin_version = "2.1.0"
@@ -57,7 +57,7 @@ repositories {
 }
 
 dependencies {
-    implementation "fr.hopcast:sdk-hopcast-android:0.5.1"
+    implementation "fr.hopcast:sdk-hopcast-android:0.5.2"
     // ProcessLifecycleOwner — drives continuous foreground advertising/discovery.
     implementation "androidx.lifecycle:lifecycle-process:2.6.1"
 }

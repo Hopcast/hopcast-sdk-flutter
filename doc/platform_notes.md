@@ -68,14 +68,40 @@ elsewhere.
 
 The AAR ships already correctly configured. Do **not** re-process it (strip,
 shrink, or repackage): doing so can break the SDK and badly regress D2D
-throughput. Integrate it as-is.
+throughput. Integrate it as-is. Your app's own R8 pass is fine: the AAR's
+consumer rules cover it, no Hopcast rule is needed in your app.
 
-### Connections are released after each transfer
+### Connections are released after each transfer (by default)
 
-When a transfer finishes, the connection to the peer is released — this keeps
-the next transfer (possibly to a different device) at full Wi-Fi speed. The
-peer stays discoverable and is reconnected transparently on the next send; you
-don't manage connections yourself.
+By default (`autoDisconnectAfterTransfer: true`), when a transfer finishes the
+connection to the peer is released — this keeps the next transfer (possibly to
+a different device) at full Wi-Fi speed. The peer stays discoverable and is
+reconnected transparently on the next send; you don't manage connections
+yourself.
+
+The price: every send pays a new connection **and** a Bluetooth → Wi-Fi
+Direct / Aware upgrade, up to **~15 s between devices joined to different
+Wi-Fi networks**. If your app sends several times in a row to the same peer
+(e.g. photo after photo), build with `autoDisconnectAfterTransfer: false`:
+
+- the link stays open after each send, so the following `sendFiles` to that
+  peer start immediately;
+- a device holds **one** D2D link at a time: while you keep a link to A, a
+  device B cannot connect to you. The SDK frees the link itself when you send
+  to another peer (after running transfers finish); `stopSharing()` frees it
+  too;
+- sending a list of files in **one** `sendFiles` call is a single transfer over
+  a single connection — the simplest way to send a batch, whatever the option.
+
+iOS ignores the option: the MultipeerConnectivity session already stays open
+across sends until `stopSharing()` / `release()`.
+
+### Mobile hotspot blocks the fast path
+
+When a device has its Wi-Fi hotspot (tethering) on, Android does not let Nearby
+Connections create the Wi-Fi Direct / Aware data link: transfers still work but
+stay on Bluetooth (much slower). This is an OS constraint no SDK can work
+around; ask users to turn the hotspot off for large transfers.
 
 ### Sharing follows the app lifecycle
 
@@ -107,7 +133,15 @@ Received files land in `filesDir/hopcast_inbox/…`; that absolute path is what
   `completedAt`), the legacy single handoff listener (every transfer, incl.
   user-triggered), `provision(context, …)` before build, auto-sync /
   `ContentProvider`, `NeighborArrivalListener`, app-bytes side channel, Wi-Fi
-  state listener, trust store and `sessionId`.
+  state listener, trust store and `sessionId`. Same for the read-only transfer
+  state added in Android SDK 0.5.2 (`connectedPeers`, `activeTransfers`,
+  `isTransferInProgress`) and `runProtocolSelfCheck()`: the iOS SDK has no
+  equivalent, so the plugin does not expose them.
+- Don't `declareNeed` while one of your own `sendFiles` is still running
+  (wait for its `bulkFinished`): the orchestrated delivery would compete for
+  the single D2D link. On Android, SDK 0.5.2 queues orchestrated sends per peer
+  and never tears down a link still in use, but sequencing them in the app
+  keeps the behaviour predictable on both platforms.
 - `transferHandoffs` only carries orchestrated transfers (`instructionId` is
   always set), on both platforms.
 - In online / hybrid mode the SDK advertises its backend `deviceUuid` to peers

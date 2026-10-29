@@ -9,7 +9,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>fr.hopcast</groupId>
   <artifactId>sdk-hopcast-android</artifactId>
-  <version>0.5.1</version>
+  <version>0.5.2</version>
   <packaging>aar</packaging>
   <name>Hopcast Online/Offline Android SDK</name>
   <description>Hopcast file sharing SDK for Android — AirDrop-like (offline) + cloud-orchestrated (online), on top of Google Nearby Connections.</description>
@@ -25,6 +25,12 @@
     </dependencies>
   </dependencyManagement>
   <dependencies>
+    <dependency>
+      <groupId>androidx.lifecycle</groupId>
+      <artifactId>lifecycle-runtime-ktx</artifactId>
+      <version>2.6.1</version>
+      <scope>compile</scope>
+    </dependency>
     <dependency>
       <groupId>org.jetbrains.kotlin</groupId>
       <artifactId>kotlin-stdlib</artifactId>
@@ -74,12 +80,6 @@
     </dependency>
     <dependency>
       <groupId>androidx.lifecycle</groupId>
-      <artifactId>lifecycle-runtime-ktx</artifactId>
-      <version>2.6.1</version>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>androidx.lifecycle</groupId>
       <artifactId>lifecycle-livedata-ktx</artifactId>
       <version>2.6.1</version>
       <scope>runtime</scope>
@@ -94,6 +94,12 @@
       <groupId>com.hivemq</groupId>
       <artifactId>hivemq-mqtt-client</artifactId>
       <version>1.3.3</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.netty</groupId>
+      <artifactId>netty-codec-http</artifactId>
+      <version>4.1.99.Final</version>
       <scope>runtime</scope>
     </dependency>
   </dependencies>

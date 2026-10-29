@@ -155,11 +155,14 @@ class HopcastPlugin : FlutterPlugin, ActivityAware, MethodChannel.MethodCallHand
                         runAsService = m["runAsService"] as? Boolean ?: false,
                     )
                 }
+                // Default true: unchanged behaviour (link dropped after every send).
+                val autoDisconnect = call.argument<Boolean>("autoDisconnectAfterTransfer") ?: true
                 HopcastBridge.build(
                     deviceId,
                     serviceId,
                     mode,
                     onlineConfig,
+                    autoDisconnect,
                     appContext,
                     act as? LifecycleOwner,
                     File(appContext.filesDir, "hopcast_inbox"),

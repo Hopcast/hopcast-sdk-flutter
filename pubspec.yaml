@@ -4,7 +4,7 @@ description: >-
   proprietary core ships as hardened binaries bundled with this package
   (an Android AAR and an iOS XCFramework); consumers only see the thin, typed
   Dart/Kotlin/Swift glue.
-version: 0.4.0
+version: 0.4.1
 publish_to: none
 
 environment:
